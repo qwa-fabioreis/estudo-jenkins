@@ -1,11 +1,8 @@
 pipeline {
-    agent none stage
-    {
-        stage('Instalação do alpine') {
-            agent{
-                docker{
-                    image 'alpine'
-                }
+    stage('Instalação do alpine') {
+        agent{
+            docker{
+                image 'alpine'
             }
         }
     }
