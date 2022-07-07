@@ -1,12 +1,15 @@
 pipeline {
-    stage('Instalação do alpine') {
-        agent{
-            docker{
-                image 'alpine'
+    agent any
+    stages {
+        stage('Build image') {
+            steps {
+                echo 'Starting to build docker image'
+
+                // script {
+                //     def customImage = docker.build("my-image:${env.BUILD_ID}")
+                //     customImage.push()
+                // }
             }
         }
-    }
-    steps{
-        echo 'Deu certo'
     }
 }
