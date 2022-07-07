@@ -7,7 +7,7 @@ pipeline {
 
                 script {
                     // def customImage = docker.build("my-image:${env.BUILD_ID}")
-                    sh 'docker build -t jenkins/teste-1.0 .' 
+                    sh 'docker build -t qwasolucoes/premier-pet-core:teste-jenkins .' 
 
                     // customImage.push()
                 }
