@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Build image') {
             steps {
-                echo 'Starting to build docker image'
+                echo 'Início do build Docker'
 
                 // script {
                 //     def customImage = docker.build("my-image:${env.BUILD_ID}")
