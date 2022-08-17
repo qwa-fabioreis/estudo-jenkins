@@ -1,0 +1,180 @@
+import unittest
+from ..enums.facas_enum import Faca
+from ..pdf.parser import extract_sections
+import cv2
+
+"""'PREM RACAS BULLDOG FRANC AD 1,0 KG FRANGO [FINAL-CURVAS] [2021] INCO.jpg'
+'PREMIER GATOS ADULTOS SALMÃO-tracos.jpg'                                                                     
+ 'PREM RACAS LHASA APSO FILH 1,0 KG FRANGO [FINAL-CURVAS] [2021].jpg'
+ 'AMBIENTES INTERNOS ADULTOS 12 KG [FINAL-CURVAS] [2020].jpg'                      
+'PREMIER CAES RE ADULTOS BULLDOG FRANCÊS 1,0 [FRANGO] [2019].jpg'"""
+
+files = [('(com risco) PREMIER SN CÃES FILHOTES RP BATATA DOCE 1,0 kg V00-19.jpg', Faca.FINEPACK_SEL_NATURAL_1KG),        
+ ('15kg.jpg', Faca.CANGURU_GOLDEN_CAES_15KG),                                                                        
+ ('PREM RACAS LHASA APSO FILH 2,5 KG FRANGO [FINAL-CURVAS] [2021].jpg', Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_25KG),                                                                       
+ ('PREM RACAS YORKSHIRE AD 1,0 KG FRANGO [FINAL-CURVAS] [2021].jpg', Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_1KG),
+ ('PREM RACAS YORKSHIRE AD 2,5 KG FRANGO [FINAL-CURVAS] [2021].jpg', Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_25KG),
+('AMBIENTES INTERNOS DERMACARE 1 KG [FINAL-CURVAS] [2021].jpg', Faca.FINEPACK_AM_IN_1KG),                    
+('PREMIER CÃES RE ADULTOS BULLDOG FRANCÊS 7,5 KG [FRANGO] [2019] V00-19.jpg', Faca.INCOPLAST_PREMIER_RACAS_ESP_75KG),
+('AMBIENTES INTERNOS DERMACARE 12 KG [FINAL-CURVAS] [2021].jpg', Faca.INCOPLAST_PREMIER_AM_IM_12KG),                    
+('AMBIENTES INTERNOS DERMACARE 2,5 KG [FINAL-CURVAS] [2021].jpg',  Faca.FINEPACK_AM_IN_25KG),                    
+('PREMIER GATOS CASTRADOS 6 A 6 SALMÃO 7,5 KG [FINAL-CURVAS][2021] (V00-21) - Copia.jpg', Faca.INCOPLAST_PREMIER_GATOS_75KG),
+('PREMIER RACAS YORKSHIRE AD 7,5 KG FRANGO [FINAL-CURVAS] [2021] - Copia.jpg', Faca.CANGURU_RACAS_ESPECIFICAS_75KG),
+('GOLDEN CÃES FILHOTES MB CARNE & ARROZ 3,0 KG [2021] [FINAL-CURVAS].jpg', Faca.FINEPACK_GOLDEN_CAES_3KG),         
+('PREMIER RAÇAS BULLDOG INGLÊS AD 12 KG FRANGO [FINAL-CURVAS] [2021].jpg', Faca.CANGURU_RACAS_ESPECIFICAS_12KG),
+('GOLDEN GATOS CASTRADOS SALMAO 10,1 kg-760x370x110-FINAL-CURVAS [2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_101KG),       
+('PREMIER SN GATOS CASTRADOS 1,5 kg (V01-21).jpg', Faca.FINEPACK_SEL_NATURAL_1KG),
+('GOLDEN GATOS CASTRADOS SALMÃO 1 kg - FINAL-CURVAS [PLANTA 2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_1KG),             
+('PREMIER SN GATOS CASTRADOS 7,5 kg (V01-21).jpg', Faca.INCOPLAST_PREMIER_SN_GATOS_75KG),
+('GOLDEN GATOS CASTRADOS SALMÃO 3 kg [INCOPLAST] FINAL-CURVAS [PLANTA 2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_3KG),    
+('GOLDEN GATOS FRANGO FILHOTES 1 kg [INCOPLAST] - FINAL-CURVAS [PLANTA 2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_1KG),   
+('GOLDEN GATOS FRANGO FILHOTES 10,1 kg-760x370x110-FINAL-CURVAS [2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_101KG),         
+('GOLDEN GATOS FRANGO FILHOTES 3 kg [INCOPLAST] FINAL-CURVAS [PLANTA 2019].jpg', Faca.INCOPLAST_GOLDEN_GATOS_3KG),     
+('GOLDEN SN CAES FILHOTES PP FRANGO 10,1 KG [2021] [FINAL-CURVAS] (V00-21).jpg', Faca.INCOPLAST_GOLDEN_SEL_NATURAL_101KG),    
+('PREMIER FORMULA PP ADULTOS [FRANGO] 20 KG [FINAL-CURVAS] [2021] (V01-21).jpg', Faca.CANGURU_PREMIER_FORMULA_20KG),
+('PREMIER FORMULA PP ADULTOS [FRANGO] 1,0 KG [FINAL-CURVAS] [2021] (V01-21).jpg', Faca.CANGURU_PREMIER_FORMULA_1KG)]
+
+d_facas = {Faca.FINEPACK_SEL_NATURAL_1KG: 'PREMIER SN GATOS CASTRADOS 1,5 kg (V01-21).jpg', 
+ Faca.CANGURU_GOLDEN_CAES_15KG: '15kg.jpg', 
+ Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_25KG: 'PREM RACAS YORKSHIRE AD 2,5 KG FRANGO [FINAL-CURVAS] [2021].jpg', 
+ Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_1KG: 'PREM RACAS YORKSHIRE AD 1,0 KG FRANGO [FINAL-CURVAS] [2021].jpg', 
+ Faca.FINEPACK_AM_IN_1KG: 'AMBIENTES INTERNOS DERMACARE 1 KG [FINAL-CURVAS] [2021].jpg', 
+ Faca.INCOPLAST_PREMIER_RACAS_ESP_75KG: 'PREMIER RACAS YORKSHIRE AD 7,5 KG FRANGO [FINAL-CURVAS] [2021] - Copia.jpg', 
+ Faca.INCOPLAST_PREMIER_AM_IM_12KG: 'AMBIENTES INTERNOS DERMACARE 12 KG [FINAL-CURVAS] [2021].jpg', 
+ Faca.FINEPACK_AM_IN_25KG: 'AMBIENTES INTERNOS DERMACARE 2,5 KG [FINAL-CURVAS] [2021].jpg', 
+ Faca.INCOPLAST_PREMIER_GATOS_75KG: 'PREMIER GATOS CASTRADOS 6 A 6 SALMÃO 7,5 KG [FINAL-CURVAS][2021] (V00-21) - Copia.jpg', 
+ Faca.CANGURU_RACAS_ESPECIFICAS_75KG: 'PREMIER RACAS YORKSHIRE AD 7,5 KG FRANGO [FINAL-CURVAS] [2021] - Copia.jpg', 
+ Faca.FINEPACK_GOLDEN_CAES_3KG: 'GOLDEN CÃES FILHOTES MB CARNE & ARROZ 3,0 KG [2021] [FINAL-CURVAS].jpg', 
+ Faca.CANGURU_RACAS_ESPECIFICAS_12KG: 'PREMIER RAÇAS BULLDOG INGLÊS AD 12 KG FRANGO [FINAL-CURVAS] [2021].jpg', 
+ Faca.INCOPLAST_GOLDEN_GATOS_101KG: 'GOLDEN GATOS FRANGO FILHOTES 10,1 kg-760x370x110-FINAL-CURVAS [2019].jpg', 
+ Faca.INCOPLAST_GOLDEN_GATOS_1KG: 'GOLDEN GATOS FRANGO FILHOTES 1 kg [INCOPLAST] - FINAL-CURVAS [PLANTA 2019].jpg', 
+ Faca.INCOPLAST_PREMIER_SN_GATOS_75KG: 'PREMIER SN GATOS CASTRADOS 7,5 kg (V01-21).jpg', 
+ Faca.INCOPLAST_GOLDEN_GATOS_3KG: 'GOLDEN GATOS FRANGO FILHOTES 3 kg [INCOPLAST] FINAL-CURVAS [PLANTA 2019].jpg', 
+ Faca.INCOPLAST_GOLDEN_SEL_NATURAL_101KG: 'GOLDEN SN CAES FILHOTES PP FRANGO 10,1 KG [2021] [FINAL-CURVAS] (V00-21).jpg',
+ Faca.FINEPACK_GOLDEN_CAES_1KG: '1kg.jpg',
+ #Faca.FINEPACK_SEL_NATURAL_25KG: '', n tenho com risco
+ Faca.CANGURU_AM_IN_12KG: 'AMBIENTES INTERNOS ADULTOS 12 KG [FINAL-CURVAS] [2020].jpg',
+ Faca.INCOPLAST_PREMIER_RACAS_ESP_1KG: 'PREM RACAS BULLDOG FRANC AD 1,0 KG FRANGO [FINAL-CURVAS] [2021] INCO.jpg',
+ #Faca.INCOPLAST_AM_IM_25KG: '', n tenho com risco
+ Faca.FINEPACK_PREMIER_SN_GATOS_1KG: 'PREMIER SN GATOS CASTRADOS 1,5 kg (V01-21).jpg',
+ Faca.CANGURU_PREMIER_FORMULA_15KG: 'PREMIER FORMULA PP ADULTOS [FRANGO] 15 KG [FINAL-CURVAS] [2021] (V01-21)(1).jpg',
+ Faca.CANGURU_PREMIER_FORMULA_20KG: 'PREMIER FORMULA PP ADULTOS [FRANGO] 20 KG [FINAL-CURVAS] [2021] (V01-21).jpg',
+ Faca.CANGURU_PREMIER_FORMULA_1KG: 'PREMIER FORMULA PP ADULTOS [FRANGO] 1,0 KG [FINAL-CURVAS] [2021] (V01-21).jpg',}
+
+class TestSectionExtraction(unittest.TestCase):
+
+
+    def test_FINEPACK_SEL_NATURAL_1KG(self): 
+        faca = Faca.FINEPACK_SEL_NATURAL_1KG
+        call_extract_section(faca)
+
+    def test_CANGURU_GOLDEN_CAES_15KG(self):
+        faca = Faca.CANGURU_GOLDEN_CAES_15KG
+        call_extract_section(faca)
+
+    def test_FINEPACK_PREMIER_RACAS_ESPECIFICAS_25KG(self):  
+        faca = Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_25KG
+        call_extract_section(faca)
+
+    def test_FINEPACK_PREMIER_RACAS_ESPECIFICAS_1KG(self): 
+        faca = Faca.FINEPACK_PREMIER_RACAS_ESPECIFICAS_1KG
+        call_extract_section(faca)
+ 
+    def test_FINEPACK_AM_IN_1KG(self): 
+        faca = Faca.FINEPACK_AM_IN_1KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_PREMIER_RACAS_ESP_75KG(self): 
+        faca = Faca.INCOPLAST_PREMIER_RACAS_ESP_75KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_PREMIER_AM_IM_12KG(self): 
+        faca = Faca.INCOPLAST_PREMIER_AM_IM_12KG
+        call_extract_section(faca)
+ 
+    def test_FINEPACK_AM_IN_25KG(self):  
+        faca = Faca.FINEPACK_AM_IN_25KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_PREMIER_GATOS_75KG(self): 
+        faca = Faca.INCOPLAST_PREMIER_GATOS_75KG
+        call_extract_section(faca)
+
+    def test_CANGURU_RACAS_ESPECIFICAS_75KG(self):
+        faca = Faca.CANGURU_RACAS_ESPECIFICAS_75KG
+        call_extract_section(faca)
+
+    def test_FINEPACK_GOLDEN_CAES_3KG(self): 
+        faca = Faca.FINEPACK_GOLDEN_CAES_3KG
+        call_extract_section(faca)
+
+    def test_CANGURU_RACAS_ESPECIFICAS_12KG(self): 
+        faca = Faca.CANGURU_RACAS_ESPECIFICAS_12KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_GOLDEN_GATOS_101KG(self): 
+        faca = Faca.INCOPLAST_GOLDEN_GATOS_101KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_GOLDEN_GATOS_1KG(self): 
+        faca = Faca.INCOPLAST_GOLDEN_GATOS_1KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_PREMIER_SN_GATOS_75KG(self): 
+        faca = Faca.INCOPLAST_PREMIER_SN_GATOS_75KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_GOLDEN_GATOS_3KG(self): 
+        faca = Faca.INCOPLAST_GOLDEN_GATOS_3KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_GOLDEN_SEL_NATURAL_101KG(self): 
+        faca = Faca.INCOPLAST_GOLDEN_SEL_NATURAL_101KG
+        call_extract_section(faca)
+
+    def test_FINEPACK_GOLDEN_CAES_1KG(self): 
+        faca = Faca.FINEPACK_GOLDEN_CAES_1KG
+        call_extract_section(faca)
+
+    """ n tenho a imagem com risco
+    def test_FINEPACK_SEL_NATURAL_25KG(self): 
+        faca = Faca.FINEPACK_SEL_NATURAL_25KG
+        call_extract_section(faca)
+    """
+
+    def test_CANGURU_AM_IN_12KG(self): 
+        faca = Faca.CANGURU_AM_IN_12KG
+        call_extract_section(faca)
+
+    def test_INCOPLAST_PREMIER_RACAS_ESP_1KG(self): 
+        faca = Faca.INCOPLAST_PREMIER_RACAS_ESP_1KG
+        call_extract_section(faca)
+
+    """ n tenho a imagem com risco
+    def test_INCOPLAST_AM_IM_25KG(self): 
+        faca = Faca.INCOPLAST_AM_IM_25KG
+        call_extract_section(faca)
+    """
+
+    def test_FINEPACK_PREMIER_SN_GATOS_1KG(self): 
+        faca = Faca.FINEPACK_PREMIER_SN_GATOS_1KG
+        call_extract_section(faca)
+
+    def test_CANGURU_PREMIER_FORMULA_15KG(self): 
+        faca = Faca.CANGURU_PREMIER_FORMULA_15KG
+        call_extract_section(faca)
+
+    def test_CANGURU_PREMIER_FORMULA_20KG(self): 
+        faca = Faca.CANGURU_PREMIER_FORMULA_20KG
+        call_extract_section(faca)
+
+    def test_CANGURU_PREMIER_FORMULA_1KG(self): 
+        faca = Faca.CANGURU_PREMIER_FORMULA_1KG
+        call_extract_section(faca)
+    
+
+def call_extract_section(faca):
+    file = d_facas[faca]
+    img = cv2.imread('app/src/test/imgs/full/' + file)
+    d = extract_sections(img, faca.value)
+    
