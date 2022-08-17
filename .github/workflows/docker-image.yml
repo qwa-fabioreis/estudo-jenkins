@@ -28,4 +28,4 @@ jobs:
           push: true
           tags: |
             fabiopereirareis/teste-git-actions:latest
-            fabiopereirareis/teste-git-actions:${{github.run_number}}
+            fabiopereirareis/teste-git-actions:v.0.${{github.run_number}}
