@@ -26,5 +26,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: fabiopereirareis/teste-git-actions:imageid
-          # tags: fabiopereirareis/teste-git-actions:latest
+          tags: fabiopereirareis/teste-git-actions:github-tag-autoincrement
