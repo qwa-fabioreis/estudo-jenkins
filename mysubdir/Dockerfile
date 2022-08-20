@@ -20,3 +20,4 @@ COPY /premier-pet.traineddata /usr/share/tesseract-ocr/4.00/tessdata/
 ENV PYTHONPATH=/app
 
 ENTRYPOINT ["python3", "app/src/api/main.py"]
+aa
