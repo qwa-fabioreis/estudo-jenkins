@@ -21,3 +21,4 @@ ENV PYTHONPATH=/app
 
 ENTRYPOINT ["python3", "app/src/api/main.py"]
 aa
+bb
