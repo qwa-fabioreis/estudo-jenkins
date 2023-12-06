@@ -2,6 +2,9 @@ pipeline {
 agent any
 stages {
     stage('Ola') {
+        environment { 
+                GIT_TAG = "jenkins-$BUILD_NUMBER"
+            }
         steps {
             echo 'Hello world'
                 // def customImage = docker.build("my-image:${env.BUILD_ID}")
@@ -13,9 +16,11 @@ stages {
             //     label 'teste-build-image'
             //     additionalBuildArgs  '--build-arg version=1.0.2'
             //     args '-v /tmp:/tmp'
-            sh 'git config --global user.email "teste@example.com" '
-            sh 'git config --global user.name "Jenkin user" '
-            sh 'git tag -l'
+            sh('''
+                    git config user.name 'my-ci-user'
+                    git config user.email 'my-ci-user@users.noreply.github.example.com'
+                    git tag -a \$GIT_TAG -m "[Jenkins CI] New Tag"
+                ''')
             }
         }
     }
