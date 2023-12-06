@@ -13,7 +13,7 @@ stages {
             //     label 'teste-build-image'
             //     additionalBuildArgs  '--build-arg version=1.0.2'
             //     args '-v /tmp:/tmp'
-            sh 'git tag'
+            sh 'git tag -l'
             }
         }
     }
