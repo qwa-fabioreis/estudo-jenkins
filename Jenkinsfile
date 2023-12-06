@@ -6,7 +6,7 @@ stages {
                 GIT_TAG = "jenkins-$BUILD_NUMBER"
             }
         steps {
-            echo 'Hello world'
+            // echo 'Hello world'
                 // def customImage = docker.build("my-image:${env.BUILD_ID}")
             // sh 'docker build -t qwasolucoes/premier-pet-core:teste-jenkins .' 
                 // customImage.push()
